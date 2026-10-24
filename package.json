@@ -1,0 +1,46 @@
+{
+  "name": "tqk-git-sync",
+  "version": "1.0.0",
+  "description": "Safe two-machine file sync without Git: pack changed files, scan for secrets, apply with backup, three-way compare and conflict copies",
+  "main": "src/main.js",
+  "bin": {
+    "sync2": "src/cli.js"
+  },
+  "scripts": {
+    "start": "electron .",
+    "cli": "node src/cli.js",
+    "test": "node --test tests/*.test.js",
+    "dist": "electron-builder --win portable"
+  },
+  "keywords": [
+    "git",
+    "sync",
+    "safe-git",
+    "electron"
+  ],
+  "author": "Truong Quang Khai",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "micromatch": "^4.0.8",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.sync2.app",
+    "productName": "Sync2",
+    "directories": {
+      "output": "dist-build"
+    },
+    "win": {
+      "target": "portable"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ktruong-afk/tqk-git-sync.git"
+  }
+}

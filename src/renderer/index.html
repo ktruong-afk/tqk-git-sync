@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sync2 - Đồng bộ & Trao đổi File 2 Máy An Toàn</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-badge">⚡ Sync2</div>
+        <div class="brand-info">
+          <h1>Đồng Bộ & Trao Đổi File Giữa 2 Máy</h1>
+          <p class="subtitle">An toàn tuyệt đối • Không ghi đè data crawl • Không lộ token • Không dùng Git</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btnThemeToggle" class="btn-icon" title="Chuyển đổi giao diện Sáng / Tối">🌙</button>
+        <button id="btnOpenSettings" class="btn-icon" title="Cài đặt dự án & Máy">⚙️ Cài đặt</button>
+      </div>
+    </header>
+
+    <!-- PROJECT BAR -->
+    <section class="project-bar">
+      <div class="project-path-group">
+        <label>Thư mục dự án:</label>
+        <input type="text" id="inputProjectPath" readonly placeholder="Chưa chọn thư mục dự án...">
+        <button id="btnChooseDir" class="btn-secondary">📁 Chọn thư mục</button>
+      </div>
+      <div class="machine-badge">
+        <span class="label">Máy này:</span>
+        <strong id="labelMachineName">Đang tải...</strong>
+        <span class="transport-tag" id="labelTransport">📦 Gói .sync2pack</span>
+      </div>
+    </section>
+
+    <!-- 4 NÚT HÀNH ĐỘNG TO BẬC NHẤT -->
+    <section class="actions-grid">
+      <button id="btnCheckStatus" class="btn-action btn-check">
+        <span class="action-icon">🔍</span>
+        <span class="action-title">Kiểm tra</span>
+        <span class="action-desc">So sánh thay đổi so với lần đồng bộ trước</span>
+      </button>
+
+      <button id="btnSendPack" class="btn-action btn-send">
+        <span class="action-icon">📦</span>
+        <span class="action-title">Gửi sang máy kia</span>
+        <span class="action-desc">Quét bảo mật & đóng gói các file đã đổi</span>
+      </button>
+
+      <button id="btnReceivePack" class="btn-action btn-receive">
+        <span class="action-icon">📥</span>
+        <span class="action-title">Nhận về</span>
+        <span class="action-desc">Mở gói nhận từ máy kia & áp dụng an toàn</span>
+      </button>
+
+      <button id="btnSyncTwoWay" class="btn-action btn-sync">
+        <span class="action-icon">🔄</span>
+        <span class="action-title">Đồng bộ 2 chiều</span>
+        <span class="action-desc">Nhận gói về trước rồi gửi gói mới đi</span>
+      </button>
+    </section>
+
+    <!-- THANH TRẠNG THÁI & CHẾ ĐỘ THỬ -->
+    <section class="options-bar">
+      <div class="dry-run-toggle">
+        <label class="switch-container">
+          <input type="checkbox" id="chkDryRun" checked>
+          <span class="slider"></span>
+        </label>
+        <span class="switch-label"><strong>Chế độ mô phỏng (Dry-run):</strong> Chỉ xem trước kế hoạch "Sẽ làm gì", không ghi đè file thật</span>
+      </div>
+
+      <div class="undo-group">
+        <button id="btnUndo" class="btn-outline-danger" title="Khôi phục lại trước lần nhận gói gần nhất">
+          ↺ Hoàn tác lần nhận gần nhất
+        </button>
+      </div>
+    </section>
+
+    <!-- KHUNG TRẠNG THÁI HIỂN THỊ CHÍNH -->
+    <main class="main-content">
+      <!-- BANNER GIẢI THÍCH TRẠNG THÁI -->
+      <div id="statusBanner" class="status-banner banner-info">
+        <span class="banner-icon">ℹ️</span>
+        <div class="banner-text">
+          <strong id="bannerTitle">Sẵn sàng</strong>
+          <p id="bannerDesc">Hãy chọn thư mục dự án và bấm "Kiểm tra" để bắt đầu.</p>
+        </div>
+      </div>
+
+      <!-- KHUNG "SẼ LÀM GÌ" (PREVIEW PLAN) -->
+      <div id="planBox" class="plan-card hidden">
+        <div class="plan-header">
+          <h3>📋 Kế Hoạch "Sẽ Làm Gì" Trước Khi Thực Hiện:</h3>
+          <span id="planSummaryBadge" class="badge">0 file</span>
+        </div>
+        <div id="planDetails" class="plan-body">
+          <!-- Render danh sách file dự kiến ghi/thay đổi -->
+        </div>
+        <div class="plan-footer">
+          <button id="btnExecutePlan" class="btn-primary-large">✓ Thực hiện thật ngay</button>
+          <button id="btnCancelPlan" class="btn-secondary">Huỷ bỏ</button>
+        </div>
+      </div>
+
+      <!-- KHUNG BÁO CÁO XUNG ĐỘT (NẾU CÓ) -->
+      <div id="conflictBox" class="conflict-card hidden">
+        <div class="conflict-header">
+          <h3>⚠️ Phát Hiện File Xung Đột (Cả 2 máy cùng sửa khác nhau)</h3>
+          <p>Sync2 đã giữ nguyên file của bạn và lưu file máy kia thành file <code>.conflict-...</code> để bạn không bị mất code!</p>
+        </div>
+        <div id="conflictList" class="conflict-body">
+          <!-- Render danh sách xung đột -->
+        </div>
+      </div>
+
+      <!-- DANH SÁCH FILE THAY ĐỔI / FILE ĐƯỢC BẢO VỆ -->
+      <div class="panels-grid">
+        <div class="content-panel">
+          <div class="panel-header">
+            <h3>📂 File đã sửa / mới cục bộ</h3>
+            <span id="badgeChanges" class="badge">0 file</span>
+          </div>
+          <div id="listChanges" class="file-list-view">
+            <div class="empty-state">Chưa có thông tin thay đổi. Bấm "Kiểm tra" để quét.</div>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <div class="panel-header">
+            <h3>🛡️ Vùng được bảo vệ tuyệt đối (Protect)</h3>
+            <span class="badge badge-success">An toàn</span>
+          </div>
+          <div class="protect-info-view">
+            <p class="protect-notice">Các thư mục sau được bảo vệ nghiêm ngặt — không bao giờ bị gói đồng bộ ghi đè hay xoá mất:</p>
+            <ul id="listProtectedPatterns" class="protect-list">
+              <li><code>data/crawl/**</code> (Dữ liệu crawl dota)</li>
+              <li><code>storage/**</code> (Dữ liệu lưu trữ tài khoản/cá nhân)</li>
+              <li><code>node_modules/**</code> & <code>dist/**</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- MODAL CÀI ĐẶT -->
+    <div id="settingsModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>⚙️ Cài Đặt Dự Án & Phương Thức Trao Đổi</h2>
+          <button id="btnCloseSettings" class="btn-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Mã định danh dự án (Project ID):</label>
+            <input type="text" id="inputProjectId" placeholder="vd: my-project">
+            <small>Hai máy phải có cùng Project ID thì mới nhận gói của nhau.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Tên máy này:</label>
+            <input type="text" id="inputMachineName" placeholder="vd: May-Nha hoặc May-Net">
+            <small>Dùng để nhận diện file conflict và nhật ký đồng bộ.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Cách trao đổi file chính:</label>
+            <select id="selectTransport">
+              <option value="pack">📦 Gói trao đổi .sync2pack (USB / Drive / Zalo - Tiện nhất cho quán net)</option>
+              <option value="sftp">☁️ Trạm trung gian SFTP (tự cấu hình)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Danh sách thư mục bảo vệ (Protect - mỗi dòng 1 quy tắc):</label>
+            <textarea id="txtProtectPatterns" rows="4"></textarea>
+            <small>Các thư mục này không bao giờ bị ghi đè hay xóa.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Danh sách loại trừ (Exclude - mỗi dòng 1 quy tắc):</label>
+            <textarea id="txtExcludePatterns" rows="3"></textarea>
+            <small>Các file không bao giờ đưa vào gói trao đổi.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnSaveSettings" class="btn-primary">Lưu Cài Đặt</button>
+          <button id="btnCancelSettings" class="btn-secondary">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
